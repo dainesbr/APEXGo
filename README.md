@@ -26,3 +26,47 @@ pip install tqdm==4.65.0 wandb==0.18.6 botorch==0.12.0 selfies==2.1.2 guacamol==
 ```
 
 This is tested on Debian GNU/Linux 11 (bullseye) with a NVIDIA RTX A6000 with driver version 535.86.10 and CUDA driver version 12.2, and a Intel(R) Xeon(R) Gold 6342 CPU, installation should take no more than 5~10 minutes with the correct setup.
+
+## How to use APEXGo
+
+**Reproduce Paper Results & Run a Demo Optimization**
+
+To reproduce the optimization results from the paper, you can run a demonstration script that optimizes a template peptide. A pretrained VAE model is included in the repository and will be loaded automatically.
+
++ Navigate to the ```optimization/constrained_bo_scripts``` directory.
++ Start Docker with the optimization workspace mounted:
+    ```shell
+    docker run -it -v ~/APEXGo/optimization/:/workspace/ --gpus 'device=0' yimengzeng/apexgo:v1
+    ```
+
++ Run the script:
+    ```bash
+    bash optimize_gramnegative_only.sh
+    ```
+
+This script, optimize_gramnegative_only.sh, runs an example optimizing template 8 ("GHLLIHLIGKATLAL") for gram-negative bacteria, with a similarity of at least 75% to the template, producing 20 different optimized peptides. Remember to replace ```YOUR_WANDB_ENTITY``` in the script with your own wandb user ID to log results.
+
+**Optimize Your Own Peptide**
+
+You can adapt the demo script to optimize your own custom peptide sequence.
+
++ Navigate to the [scripts directory](./optimization/constrained_bo_scripts/).
++ Modify the script: In the [optimize_gramnegative_only.sh](./optimization/constrained_bo_scripts/optimize_gramnegative_only.sh) script, change the --constraint_types argument to your desired seed peptide for optimization.
+
+Results, including the final diverse set of peptides and their APEX oracle scores will be uploaded to your wandb account and also saved locally in ```APEXGo/optimization/constrained_bo_scripts/optimization_all_collected_data```.
+
+**Train the VAE Model from Scratch (Optional)**
+
+If you wish to train the Variational Autoencoder (VAE) from scratch instead of using the provided pretrained model:
+
++ Download the training data from [here](https://drive.google.com/file/d/1WZyR-UZ78jktdO-w2yeKEVT-Bgfe9QRo/view?usp=sharing).
++ Place the downloaded CSV into the ```APEXGo/generation/data``` directory.
++ Start Docker with the generation workspace mounted:
+    ```shell
+    docker run -it -v ~/APEXGo/generation/:/workspace/ --gpus 'device=0' yimengzeng/apexgo:v1
+    ```
++ Run the training script:
+    ```bash
+    bash train.sh
+    ```
+You can find the script at: ```APEXGo/generation/train.sh```. Remember to replace YOUR_WANDB_ENTITY in the script with your wandb user ID. Checkpoints will be saved locally in ```APEXGo/generation/saved_models```.
