@@ -16,6 +16,32 @@ docker run -it -v ~/APEXGo/generation/:/workspace/ --gpus 'device=0' yimengzeng/
 ```
 to train the VAE used for latent space optimization.
 
+### Grace Blackwell (GB10) container
+
+APEXGo can also run on NVIDIA Grace Blackwell (GB10) systems that use ARM64 CPUs. A multi-architecture PyTorch base image and an ARM-friendly dependency stack are provided in [`Dockerfile.gb10`](./Dockerfile.gb10).
+
+To build the image directly on a GB10 host:
+
+```bash
+docker buildx build --platform linux/arm64 -f Dockerfile.gb10 -t apexgo:gb10 .
+```
+
+Run the container for optimization (wandb is optional but recommended):
+
+```bash
+docker run -it --gpus all -e WANDB_API_KEY=YOUR_API_KEY \
+  -v ~/APEXGo/optimization/:/workspace apexgo:gb10
+```
+
+Or launch the generation workflow for VAE training:
+
+```bash
+docker run -it --gpus all -e WANDB_API_KEY=YOUR_API_KEY \
+  -v ~/APEXGo/generation/:/workspace apexgo:gb10
+```
+
+The image pins the same Python package versions as the reference setup and installs RDKit from conda-forge to ensure ARM64 wheel availability.
+
 
 For a local setup using conda, run the following:
 ```shell
